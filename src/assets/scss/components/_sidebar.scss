@@ -1,0 +1,80 @@
+.sidebar {
+  position: fixed;
+  z-index: $z-index-html;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  
+  height: 75vh;
+  padding: rem($gap-small);
+
+  transition: all .75s $transition-function;
+  transform: translateY(100%);
+
+  background-color: #242424;
+
+  @media #{$screen-laptop} {
+    position: relative;
+    z-index: initial;
+
+    height: 100%;
+
+    transition: initial;
+    transform: initial;
+
+    background-color: initial;
+  }
+
+  &--open {
+    transform: translateY(0);
+  }
+
+  &--open & {
+    &__icon {
+      transform: rotate(0);
+    }
+  }
+
+  &__toggle {
+    $size: 36px;
+
+    position: absolute;
+    z-index: -1;
+    top: calc(-#{$size} / 1.5);
+    left: 50%;
+
+    max-width: rem($size);
+    max-height: rem($size);
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+    background-color: #242424;
+  }
+
+  &__icon {
+    max-width: none;
+    max-height: none;
+
+    transform: rotate(180deg);
+
+    color: $white;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    height: 100%;
+  }
+
+  &__actions {
+    &-item {
+      width: 100%;
+      margin-top: rem($gap-mini);
+      
+      @include resetting-vertical-indentation-of-first;
+    }
+  }
+}

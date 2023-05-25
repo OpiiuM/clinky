@@ -1,0 +1,27 @@
+.icon {
+  $size: 20px;
+
+  display: block;
+
+  width: 100%;
+  max-width: rem($size);
+  height: 100%;
+  max-height: rem($size);
+
+  fill: currentColor;
+
+  &--button {
+    cursor: pointer;
+  }
+
+  &--disable {
+    pointer-events: none;
+  }
+
+  &--medium {
+    $size: 28px;
+
+    max-width: rem($size);
+    max-height: rem($size);
+  }
+}

@@ -1,0 +1,87 @@
+@mixin text-size($font-size, $line-height, $font-weight: 400) {
+  font-size: rem($font-size);
+  font-weight: $font-weight;
+  line-height: math.div($line-height, $font-size);
+}
+
+@mixin text-gigantic($font-weight: null) {
+  @include text-size($font-size-gigantic, $line-height-gigantic, $font-weight);
+}
+
+@mixin text-big($font-weight: null) {
+  @include text-size($font-size-big, $line-height-big, $font-weight);
+}
+
+@mixin text-medium($font-weight: null) {
+  @include text-size($font-size-medium, $line-height-medium, $font-weight);
+}
+
+@mixin text-average($font-weight: null) {
+  @include text-size($font-size-average, $line-height-average, $font-weight);
+}
+
+@mixin position-stretching($position: absolute, $z-index: null) {
+  position: $position;
+
+  @if $z-index {
+    z-index: $z-index;
+  }
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+// -------------- trunc
+
+@mixin text-truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@mixin text-truncate-by-row($row: 2) {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: $row;
+  -webkit-box-orient: vertical;
+}
+
+// -------------- img
+
+@mixin object-fit($fit: fill, $position: null) {
+  -o-object-fit: $fit;
+  object-fit: $fit;
+
+  @if $position {
+    font-family: "object-fit: #{$fit}; object-position: #{$position}";
+    -o-object-position: $position;
+    object-position: $position;
+  }
+
+  @else {
+    font-family: "object-fit: #{$fit}";
+  }
+}
+
+// -------------- resets
+
+@mixin list-reset {
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+@mixin resetting-vertical-indentation-of-first {
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+@mixin resetting-vertical-indentation-of-last {
+  &:last-child {
+    margin-bottom: 0;
+  }
+}

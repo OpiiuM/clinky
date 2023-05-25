@@ -1,0 +1,10 @@
+.container {
+  max-width: rem($container-width);
+  margin-right: auto;
+  margin-left: auto;
+  padding: 0 rem($gap-small);
+
+  @media #{$screen-laptop} {
+    padding: 0 rem($gap-medium);
+  }
+}

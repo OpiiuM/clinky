@@ -41,7 +41,7 @@ const token = getToken();
 
 if (token) {
   try {
-    await router.push('/app');
+    router.push('/app');
   } catch (error) {
     removeToken();
     console.error(error);

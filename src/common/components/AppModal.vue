@@ -1,5 +1,5 @@
 <script setup>
-import CloseIcon from '@/assets/icons/close.svg';
+import IconClose from '@/assets/icons/close.svg';
 
 defineEmits(['close']);
 </script>
@@ -15,7 +15,7 @@ defineEmits(['close']);
         @click.self="$emit('close')"
       >
         <div class="modal">
-          <close-icon
+          <icon-close
             class="modal__close icon icon--button icon--medium"
             @click="$emit('close')"
           />

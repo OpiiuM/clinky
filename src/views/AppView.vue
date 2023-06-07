@@ -26,6 +26,7 @@ const handleLogout = async () => {
 
   if (responce === 'Error') {
     router.push('/');
+    filterStore.$reset();
   } else {
     console.error('logout Error');
   }
@@ -37,45 +38,49 @@ const handleReset = () => {
 </script>
 
 <template>
-  <div class="page page--app">
-    <div class="page__container">
+  <div class="page__container">
+    <div
+      class="page__sidebar sidebar"
+      :class="{ 'sidebar--open': notTablet && isOpenMobileMenu }"
+    >
       <div
-        class="page__sidebar sidebar"
-        :class="{ 'sidebar--open': notTablet && isOpenMobileMenu }"
+        v-if="notTablet"
+        class="sidebar__toggle"
       >
-        <div
-          v-if="notTablet"
-          class="sidebar__toggle"
-        >
-          <icon-angle
-            class="sidebar__icon icon icon--button"
-            @click="isOpenMobileMenu = !isOpenMobileMenu"
-          />
-        </div>
-        <div class="sidebar__content">
-          <the-filter />
+        <IconAngle
+          class="sidebar__icon icon icon--button"
+          @click="isOpenMobileMenu = !isOpenMobileMenu"
+        />
+      </div>
+      <div class="sidebar__content">
+        <TheFilter />
 
-          <div class="sidebar__actions">
-            <app-button
-              class="sidebar__actions-item"
-              color="orange"
-              @click="handleReset"
-            >
-              Сбросить фильтры
-            </app-button>
-            <app-button
-              class="sidebar__actions-item"
-              color="green"
-              @click="handleLogout"
-            >
-              Разлогиниться
-            </app-button>
-          </div>
+        <div class="sidebar__actions">
+          <!-- <app-button
+            class="sidebar__actions-item"
+            color="blue"
+          >
+            Фильтры по умолчанию
+          </app-button> -->
+          <app-button
+            class="sidebar__actions-item"
+            color="orange"
+            @click="handleReset"
+          >
+            Сбросить фильтры
+          </app-button>
+          <app-button
+            class="sidebar__actions-item"
+            color="green"
+            @click="handleLogout"
+          >
+            Разлогиниться
+          </app-button>
         </div>
       </div>
-      <div class="page__content">
-        <the-card-box />
-      </div>
+    </div>
+    <div class="page__content">
+      <TheCardBox />
     </div>
   </div>
 </template>

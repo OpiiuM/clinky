@@ -35,6 +35,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  inputAction: {
+    type: Boolean,
+    default: true,
+  },
   removable: {
     type: Boolean,
     default: false,
@@ -47,7 +51,9 @@ const isOpen = ref(false);
 const field = ref('');
 
 const sortedOptions = computed(() => {
-  return [...props.options].sort();
+  return [...props.options].filter((item) => {
+    return item.toLowerCase().includes(field.value.toLowerCase());
+  }).sort();
 });
 
 const selectValue = computed({
@@ -167,7 +173,10 @@ const selectedClass = (item) => {
           @push="$emit('add-value', $event)"
         >
           <template #suffix>
-            <icon-edit class="icon" />
+            <icon-edit
+              v-if="inputAction"
+              class="icon"
+            />
           </template>
         </app-input>
         <div class="select__dropdown-inner">

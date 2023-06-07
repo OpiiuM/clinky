@@ -11,11 +11,23 @@ const goals = [
     status: false,
   },
   {
-    name: "Count item's of tag",
+    name: 'Count item\'s of tag',
     status: false,
   },
   {
-    name: 'Parse string of tags',
+    name: 'Error/Warning Notifier',
+    status: false,
+  },
+  {
+    name: 'Perfect-scrollbar',
+    status: false,
+  },
+  {
+    name: 'Captcha',
+    status: false,
+  },
+  {
+    name: 'History of tags',
     status: false,
   },
 ];

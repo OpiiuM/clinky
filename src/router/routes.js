@@ -1,8 +1,15 @@
+import { isLoggedIn } from '@/middlewares/isLoggedIn';
+
 export default [
   {
     path: '/',
     name: 'HomeView',
     component: () => import('@/views/HomeView.vue'),
+  },
+  {
+    path: '/gui',
+    name: 'GuiView',
+    component: () => import('@/views/GuiView.vue'),
   },
   {
     path: '/signup',
@@ -19,7 +26,16 @@ export default [
     name: 'AppView',
     component: () => import('@/views/AppView.vue'),
     meta: {
-      requiresAuth: true,
+      layout: 'Main',
+      middlewares: [isLoggedIn],
+    },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'ErrorView',
+    component: () => import('@/views/ErrorView.vue'),
+    meta: {
+      layout: 'Error',
     },
   },
 ];

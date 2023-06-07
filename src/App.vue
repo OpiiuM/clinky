@@ -1,8 +1,11 @@
 <script setup>
 import { RouterView } from 'vue-router';
+import AppLayout from '@/layouts/AppLayout.vue';
 </script>
 
 <template>
-  <router-view />
+  <app-layout>
+    <router-view />
+  </app-layout>
   <div id="popup"></div>
 </template>

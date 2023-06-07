@@ -114,6 +114,8 @@ const sortByLengthTags = computed(() => {
 
     word-break: break-word;
 
+    color: $black;
+
     @media #{$screen-laptop} {
       margin-bottom: rem($gap-medium);
     }

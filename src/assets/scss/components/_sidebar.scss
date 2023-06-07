@@ -40,7 +40,7 @@
 
     position: absolute;
     z-index: -1;
-    top: calc(-#{$size} / 1.5);
+    top: calc(-#{$size} / 1.2);
     left: 50%;
 
     max-width: rem($size);
@@ -70,6 +70,8 @@
   }
 
   &__actions {
+    margin-top: rem($gap-medium);
+
     &-item {
       width: 100%;
       margin-top: rem($gap-mini);

@@ -4,6 +4,7 @@
 
   min-height: 100vh;
 
+  color: $white;
   background-color: #242424;
 
   &--app & {
@@ -23,6 +24,7 @@
       overflow-y: auto;
 
       height: 100vh;
+      min-height: 100%;
       padding: rem($gap-small);
 
       background-color: $boston-blue;
@@ -32,6 +34,29 @@
         border-bottom-left-radius: rem(16px);
         box-shadow: 0 0 rem($gap-mini) $boston-blue;
       }
+    }
+  }
+
+  &--error & {
+    &__content {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    &__title {
+      @include text-size(36px, 36px, $font-weight-bold);
+
+      margin-bottom: rem($gap-small);
+      
+      @media #{$screen-laptop} {
+        @include text-size(60px, 60px, $font-weight-bold);
+      }
+    }
+
+    &__text {
+      margin-bottom: rem($gap-small);
     }
   }
 

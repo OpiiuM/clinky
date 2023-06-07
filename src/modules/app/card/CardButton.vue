@@ -18,6 +18,7 @@
   cursor: pointer;
   user-select: none;
 
+  color: $black;
   border-radius: rem($border-radius-micro);
   background-color: $white;
 }

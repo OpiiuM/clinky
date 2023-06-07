@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue';
+import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useVuelidate } from '@vuelidate/core';
 import { required, email } from '@vuelidate/validators';
@@ -23,95 +23,83 @@ const data = reactive({
   password: '',
 });
 
+const formBlock = ref(false);
+
 const v$ = useVuelidate(rules, data);
 
 const handleSubmit = async () => {
-  const isValid = await v$.value.$validate();
+  try {
+    const isValid = await v$.value.$validate();
 
-  if (!isValid) return;
+    if (!isValid) return;
 
-  const responce = await authStore.login(data);
+    formBlock.value = true;
+    const responce = await authStore.login(data);
 
-  if (responce !== 'Success') {
-    console.error(responce);
-  } else {
-    router.push('/app');
+    if (responce !== 'Success') {
+      console.error(responce);
+    } else {
+      router.push('/app');
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    formBlock.value = false;
   }
 };
 </script>
 
 <template>
-  <div class="page">
-    <div class="page__container">
-      <div class="auth">
-        <div class="auth__block auth__block--banner">
-          <picture>
-            <source
-              media="(min-width: 1440px)"
-              srcset="https://loremflickr.com/1440/1200"
-            />
-            <source
-              media="(min-width: 1024px)"
-              srcset="https://loremflickr.com/1280/1200"
-            />
-            <source
-              media="(min-width: 768px)"
-              srcset="https://loremflickr.com/1024/360"
-            />
-            <img
-              src="https://loremflickr.com/768/360"
-              alt="random pic"
-              class="auth__image"
-            />
-          </picture>
-        </div>
-        <div class="auth__block">
-          <div class="auth__content">
-            <form
-              class="auth__form form"
-              @submit.prevent="handleSubmit"
-            >
-              <div class="form__block">
-                <h2 class="form__title">Войти | SignIn</h2>
+  <div class="page__container">
+    <div class="auth">
+      <div class="auth__block auth__block--banner"></div>
+      <div class="auth__block">
+        <div class="auth__content">
+          <form
+            class="auth__form form"
+            @submit.prevent="handleSubmit"
+          >
+            <div class="form__block">
+              <h2 class="form__title">Войти | SignIn</h2>
+            </div>
+            <div class="form__block">
+              <div class="form__field">
+                <app-input
+                  v-model.trim="data.email"
+                  label="Email"
+                  type="text"
+                  :hasError="!!v$.email.$errors.length"
+                  :errorText="v$.email.$errors[0]?.$message"
+                />
               </div>
-              <div class="form__block">
-                <div class="form__field">
-                  <app-input
-                    v-model.trim="data.email"
-                    label="Email"
-                    type="text"
-                    :hasError="!!v$.email.$errors.length"
-                    :errorText="v$.email.$errors[0]?.$message"
-                  />
-                </div>
-                <div class="form__field">
-                  <app-input
-                    v-model.trim="data.password"
-                    label="Password"
-                    type="password"
-                    :hasError="!!v$.password.$errors.length"
-                    :errorText="v$.password.$errors[0]?.$message"
-                  />
-                </div>
+              <div class="form__field">
+                <app-input
+                  v-model.trim="data.password"
+                  label="Password"
+                  type="password"
+                  :hasError="!!v$.password.$errors.length"
+                  :errorText="v$.password.$errors[0]?.$message"
+                />
               </div>
-              <div class="form__block">
-                <app-button
-                  type="submit"
-                  class="form__action"
-                >
-                  Авторизация
-                </app-button>
-                <app-button
-                  tag="router-link"
-                  to="/"
-                  color="green"
-                  class="form__action"
-                >
-                  Вернуться на главную
-                </app-button>
-              </div>
-            </form>
-          </div>
+            </div>
+            <div class="form__block">
+              <app-button
+                type="submit"
+                :disabled="formBlock"
+                class="form__action"
+              >
+                Авторизация
+              </app-button>
+              <app-button
+                tag="router-link"
+                to="/"
+                color="green"
+                class="form__action"
+              >
+                Вернуться на главную
+              </app-button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

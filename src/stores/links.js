@@ -14,10 +14,10 @@ export const useLinksStore = defineStore('links', {
 
   getters: {
     getCats: (state) => {
-      let arr = [];
+      const arr = [];
 
       state.links.forEach((link) => {
-        arr = [...arr, ...link.category];
+        arr.push(...link.category);
       });
 
       return [...new Set(arr)];
@@ -61,13 +61,11 @@ export const useLinksStore = defineStore('links', {
 
       if (sortsAreEmpty) return state.getFilteredLinks;
 
-      const { sortDates, sortAlphabetic } = useSort();
+      const { sortAlphabetic } = useSort();
 
       return [...state.getFilteredLinks].sort((a, b) => {
         if (filterStore.sortTypes.includes('alphabetic')) {
           return sortAlphabetic(a, b);
-        } else if (filterStore.sortTypes.includes('date')) {
-          return sortDates(a, b);
         }
       });
     },
@@ -78,7 +76,7 @@ export const useLinksStore = defineStore('links', {
       const userId = getToken();
       const data = await linksService.fetchLinks(userId);
 
-      if (!data) return;
+      if (!Object.values(data).length) return;
 
       const { normalizeLinks } = useData();
       this.links = normalizeLinks(data);
@@ -105,7 +103,7 @@ export const useLinksStore = defineStore('links', {
     async editLink(link) {
       const { removeProperty } = useData();
       const userId = getToken();
-      const data = removeProperty(link, (name, value) => name === 'id');
+      const data = removeProperty(link, (name) => name === 'id');
       await linksService.updateLink(userId, link.id, data);
 
       const index = this.links.findIndex((el) => el.id === link.id);

@@ -63,6 +63,10 @@ defineProps({
     cursor: not-allowed;
 
     background-color: $dove-gray;
+
+    &:hover {
+      background-color: $dove-gray;
+    }
   }
 
   &--blue {

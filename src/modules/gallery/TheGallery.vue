@@ -19,8 +19,16 @@ const modalAction = (modalType, status) => {
 const modalImage = ref('');
 
 const handleClick = (img) => {
-  modalImage.value = img;
+  modalImage.value = getImageUrl(img);
   modalAction('img', true);
+};
+
+const getImageUrl = (name) => {
+  if (window.location.hostname === 'localhost') {
+    return `src/assets/img/${name}`;
+  }
+
+  return new URL(`../assets/img/${name}`, import.meta.url).href;
 };
 </script>
 
@@ -33,7 +41,7 @@ const handleClick = (img) => {
         class="gallery__item"
       >
         <img
-          :src="image.src"
+          :src="getImageUrl(image.src)"
           :alt="image.alt"
           class="gallery__image"
           @click="handleClick(image.src)"

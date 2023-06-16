@@ -4,19 +4,19 @@ import TheGallery from '@/modules/gallery/TheGallery.vue';
 
 const gallery = [
   {
-    src: 'src/assets/img/version-1.jpg',
+    src: 'version-1.jpg',
     alt: 'version #1',
   },
   {
-    src: 'src/assets/img/version-2.jpg',
+    src: 'version-2.jpg',
     alt: 'version #2',
   },
   {
-    src: 'src/assets/img/version-3.jpg',
+    src: 'version-3.jpg',
     alt: 'version #3',
   },
   {
-    src: 'src/assets/img/version-4.jpg',
+    src: 'version-4.jpg',
     alt: 'version #4',
   },
 ];

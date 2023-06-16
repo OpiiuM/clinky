@@ -37,7 +37,9 @@ export const useLinksStore = defineStore('links', {
         title.toLowerCase().includes(filterStore.filters.search.toLowerCase().trim());
 
       const tagsFilter = ({ category }) => {
-        return category.some((cat) => filterStore.filters.tags.includes(cat));
+        return filterStore.filters.tags.every(
+          (tag) => (category.includes(tag)),
+        );
       };
 
       const favoriteFilter = ({ isFavorite }) => isFavorite;
@@ -63,7 +65,7 @@ export const useLinksStore = defineStore('links', {
 
       const { sortAlphabetic } = useSort();
 
-      return [...state.getFilteredLinks].sort((a, b) => {
+      return state.getFilteredLinks.toSorted((a, b) => {
         if (filterStore.sortTypes.includes('alphabetic')) {
           return sortAlphabetic(a, b);
         }

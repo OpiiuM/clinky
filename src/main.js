@@ -17,6 +17,7 @@ import AppSelect from '@/common/components/AppSelect.vue';
 import AppTag from '@/common/components/AppTag.vue';
 import AppTabsItem from '@/common/components/AppTabs/AppTabsItem.vue';
 import AppTabsWrapper from '@/common/components/AppTabs/AppTabsWrapper.vue';
+import AppZoom from '@/common/components/AppZoom.vue';
 
 // firebase
 import '@/firebase';
@@ -35,6 +36,7 @@ app.component('AppSelect', AppSelect);
 app.component('AppTag', AppTag);
 app.component('AppTabsItem', AppTabsItem);
 app.component('AppTabsWrapper', AppTabsWrapper);
+app.component('AppZoom', AppZoom);
 app.mount('#app');
 
 const token = getToken();

@@ -58,3 +58,7 @@ export const useCategory = () => ({
     return cats.length ? cats : DEFAULT_CATEGORY;
   },
 });
+
+export const getImageUrl = (name) => {
+  return `/img/${name}`;
+};

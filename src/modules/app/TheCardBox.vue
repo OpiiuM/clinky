@@ -65,14 +65,14 @@ const handleChange = useDebounceFn((link, status) => {
   </section>
 
   <app-modal
-    v-if="modals.creation"
+    :is-open="modals.creation"
     @close="modalAction('creation', false)"
   >
     <form-create-link @submit="modalAction('creation', false)" />
   </app-modal>
 
   <app-modal
-    v-if="modals.edit"
+    :is-open="modals.edit"
     @close="modalAction('edit', false)"
   >
     <form-edit-link

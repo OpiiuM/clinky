@@ -2,12 +2,14 @@
 $white: #ffffff;
 $black: #000000;
 
-$boston-blue: #397dbF;
+$boston-blue: #397dbf;
 $dodger-blue: #1e7aff;
 $mirage: #1e2835;
 
-$mustard: #ffd454;
+$salem: #13a74e;
 
+$mustard: #ffd454;
+$mango-tango: #e66f00;
 $milano-red: #cc1f00;
 $cocoa-brown: #301e1b;
 
@@ -24,11 +26,10 @@ $dove-gray: #666666;
 
 $silver-chalice: #a4a4a4;
 
-// TODO:
 $accent: $boston-blue;
 $blue: $boston-blue;
-$orange: darken(rgb(255, 123, 0), 5%);
-$green: #13a74e;
+$orange: $mango-tango;
+$green: $salem;
 $red: $milano-red;
 
 

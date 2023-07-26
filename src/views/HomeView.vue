@@ -19,6 +19,10 @@ const gallery = [
     src: 'version-4.jpg',
     alt: 'version #4',
   },
+  {
+    src: 'version-4-1.jpg',
+    alt: 'version #4-1',
+  },
 ];
 </script>
 
@@ -29,10 +33,10 @@ const gallery = [
 
       <app-tabs-wrapper style="margin-bottom: 40px">
         <app-tabs-item title="Project Goals">
-          <TheGoals />
+          <the-goals />
         </app-tabs-item>
         <app-tabs-item title="Chronic">
-          <TheGallery :gallery="gallery" />
+          <the-gallery :gallery="gallery" />
         </app-tabs-item>
       </app-tabs-wrapper>
 

@@ -47,21 +47,15 @@ const handleReset = () => {
         v-if="notTablet"
         class="sidebar__toggle"
       >
-        <IconAngle
+        <icon-angle
           class="sidebar__icon icon icon--button"
           @click="isOpenMobileMenu = !isOpenMobileMenu"
         />
       </div>
       <div class="sidebar__content">
-        <TheFilter />
+        <the-filter />
 
         <div class="sidebar__actions">
-          <!-- <app-button
-            class="sidebar__actions-item"
-            color="blue"
-          >
-            Фильтры по умолчанию
-          </app-button> -->
           <app-button
             class="sidebar__actions-item"
             color="orange"
@@ -80,7 +74,7 @@ const handleReset = () => {
       </div>
     </div>
     <div class="page__content">
-      <TheCardBox />
+      <the-card-box />
     </div>
   </div>
 </template>

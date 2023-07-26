@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive } from 'vue';
+import { getImageUrl } from '@/common/composables';
 
 defineProps({
   gallery: {
@@ -22,14 +23,6 @@ const handleClick = (img) => {
   modalImage.value = getImageUrl(img);
   modalAction('img', true);
 };
-
-const getImageUrl = (name) => {
-  if (window.location.hostname === 'localhost') {
-    return `src/assets/img/${name}`;
-  }
-
-  return new URL(`../assets/img/${name}`, import.meta.url).href;
-};
 </script>
 
 <template>
@@ -51,12 +44,11 @@ const getImageUrl = (name) => {
   </div>
 
   <app-modal
-    v-if="modals.img"
+    :is-open="!!modals.img"
     @close="modalAction('img', false)"
   >
-    <img
+    <app-zoom
       :src="modalImage"
-      class="image"
     />
   </app-modal>
 </template>
@@ -99,7 +91,7 @@ const getImageUrl = (name) => {
     cursor: pointer;
     user-select: none;
 
-    border: rem(1px) solid #eee;
+    border: rem(2px) solid #eee;
     border-radius: rem($border-radius);
 
     &:hover {

@@ -1,18 +1,36 @@
 <script setup>
+import { toRef, watch } from 'vue';
+import { useScrollLock } from '@vueuse/core';
 import IconClose from '@/assets/icons/close.svg';
 
 defineEmits(['close']);
+
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const isOpen = toRef(props, 'isOpen');
+
+const $html = document.documentElement;
+const isLocked = useScrollLock($html);
+
+watch(isOpen, () => {
+  isLocked.value = isOpen.value;
+}, {
+  immediate: true,
+});
 </script>
 
 <template>
   <teleport to="#popup">
-    <transition
-      name="fade"
-      appear
-    >
+    <transition name="fade">
       <div
+        v-if="isOpen"
         class="modal-overlay"
-        @click.self="$emit('close')"
+        @mousedown.self="$emit('close')"
       >
         <div class="modal">
           <icon-close

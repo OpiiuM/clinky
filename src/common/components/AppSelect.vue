@@ -86,7 +86,9 @@ const handleSelect = (item) => {
 };
 
 const computedSelected = (value) => {
-  return props.multiple ? selectValue.value.includes(value) : selectValue.value === value;
+  return props.multiple
+    ? selectValue.value.includes(value)
+    : selectValue.value === value;
 };
 
 const selectedClass = (item) => {

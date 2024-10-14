@@ -69,6 +69,10 @@
     height: 100%;
   }
 
+  &__countdown {
+    margin-top: auto;
+  }
+
   &__actions {
     margin-top: rem($gap-medium);
 

@@ -7,11 +7,6 @@ export default [
     component: () => import('@/views/HomeView.vue'),
   },
   {
-    path: '/gui',
-    name: 'GuiView',
-    component: () => import('@/views/GuiView.vue'),
-  },
-  {
     path: '/signup',
     name: 'RegisterView',
     component: () => import('@/views/RegisterView.vue'),

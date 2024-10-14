@@ -1,11 +1,13 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useMediaQuery } from '@vueuse/core';
 import { useRouter } from 'vue-router';
 import { useLinksStore, useFilterStore, useAuthStore } from '@/stores';
+import { COUNTDOWN_DATE } from '@/common/constants';
 
 import TheFilter from '@/modules/app/TheFilter.vue';
 import TheCardBox from '@/modules/app/TheCardBox.vue';
+import CountdownTimer from '@/modules/app/CountdownTimer.vue';
 
 import IconAngle from '@/assets/icons/angle-down.svg';
 
@@ -35,6 +37,10 @@ const handleLogout = async () => {
 const handleReset = () => {
   filterStore.$reset();
 };
+
+const now = Date.now(); 
+const date = new Date(COUNTDOWN_DATE).getTime();
+const diff = computed(() => date - now);
 </script>
 
 <template>
@@ -53,7 +59,13 @@ const handleReset = () => {
         />
       </div>
       <div class="sidebar__content">
-        <the-filter />
+        <the-filter class="sidebar__filter" />
+
+        <countdown-timer
+          v-if="diff > 0"
+          :time="diff"
+          class="sidebar__countdown"
+        />
 
         <div class="sidebar__actions">
           <app-button

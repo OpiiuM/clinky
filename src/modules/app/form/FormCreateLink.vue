@@ -24,10 +24,7 @@ const rules = {
     required,
     maxLength: maxLength(RULES.maxLength.title),
   },
-  href: {
-    required,
-    maxLength: maxLength(RULES.maxLength.href),
-  },
+  href: { required },
 };
 
 const v$ = useVuelidate(rules, state);

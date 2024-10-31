@@ -25,10 +25,7 @@ const rules = computed(() => ({
       required,
       maxLength: maxLength(RULES.maxLength.title),
     },
-    href: {
-      required,
-      maxLength: maxLength(RULES.maxLength.href),
-    },
+    href: { required },
   },
 }));
 

@@ -1,75 +1,74 @@
 <script setup>
-import { reactive } from 'vue';
+import { ref, reactive } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
+import { storeToRefs } from 'pinia';
+
 import { useLinksStore } from '@/stores';
 
-import CardButton from '@/modules/app/card/CardButton.vue';
 import CardLink from '@/modules/app/card/CardLink.vue';
-import FormCreateLink from '@/modules/app/form/FormCreateLink.vue';
 import FormEditLink from '@/modules/app/form/FormEditLink.vue';
 
+// import { LINK_ELO } from '@/common/constants';
+
 const linksStore = useLinksStore();
+const { getApplicationLinks, hasCardInBuffer, isSelectMode } = storeToRefs(linksStore);
 
 const modals = reactive({
-  creation: false,
   edit: false,
 });
 
-let editLinkId;
+const editLinkId = ref(null);
 
 const modalAction = (modalType, status) => {
   modals[modalType] = status;
 };
 
 const handleEdit = (id) => {
-  editLinkId = id;
+  editLinkId.value = id;
   modalAction('edit', true);
 };
 
 const handleChange = useDebounceFn((link, status) => {
-  const { id, title, category, href, dateCreate } = link;
-
   const data = {
-    id,
-    title,
-    category,
-    href,
-    dateCreate,
+    ...link,
     isFavorite: status,
   };
 
   linksStore.editLink(data);
 }, 1000);
+
+// const handleAddElo = async (link) => {
+//   const data = {
+//     ...link,
+//     // TODO: убрать в будущем
+//     elo: (link?.elo ?? 0) + LINK_ELO.step,
+//   };
+  
+//   linksStore.editLink(data);
+// };
 </script>
 
 <template>
   <section class="card-box">
-    <div class="card-box__item">
-      <card-button @click="modalAction('creation', true)" />
-    </div>
     <div
-      v-for="link in linksStore.getApplicationLinks"
+      v-for="link in getApplicationLinks"
       :key="link.id"
       class="card-box__item"
     >
-      <card-link
-        :id="link.id"
-        :category="link.category"
-        :title="link.title"
-        :href="link.href"
-        :is-favorite="link.isFavorite"
-        @favorite="handleChange(link, $event)"
-        @edit="handleEdit"
-      />
+    <card-link
+      :id="link.id"
+      :category="link.category"
+      :title="link.title"
+      :href="link.href"
+      :is-favorite="link.isFavorite"
+      :is-select-mode="isSelectMode"
+      :is-selected="hasCardInBuffer(link.id)"
+      @favorite="handleChange(link, $event)"
+      @edit="handleEdit"
+      @add-to-buffer="() => linksStore.addCardToBuffer(link)"
+    />
     </div>
   </section>
-
-  <app-modal
-    :is-open="modals.creation"
-    @close="modalAction('creation', false)"
-  >
-    <form-create-link @submit="modalAction('creation', false)" />
-  </app-modal>
 
   <app-modal
     :is-open="modals.edit"

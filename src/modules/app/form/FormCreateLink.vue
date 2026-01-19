@@ -17,6 +17,7 @@ const state = reactive({
   title: '',
   category: [],
   href: '',
+  isFavorite: false,
 });
 
 const rules = {
@@ -50,7 +51,7 @@ const handleSubmit = async () => {
     category: setCategory(state.category),
     href: state.href,
     dateCreate: convert(new Date()),
-    isFavorite: false,
+    isFavorite: state.isFavorite,
   };
 
   linksStore.addLink(data);
@@ -95,6 +96,11 @@ const handleSubmit = async () => {
           :hasError="!!v$.href.$errors.length"
           :errorText="v$.href.$errors[0]?.$message"
         />
+      </div>
+      <div class="form__field">
+        <app-checkbox v-model="state.isFavorite">
+          Избранное
+        </app-checkbox>
       </div>
     </div>
     <div class="form__block">

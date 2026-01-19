@@ -10,6 +10,11 @@ const linksStore = useLinksStore();
 const filtersStore = useFilterStore();
 
 const { search, tags, types, sortTypes } = storeToRefs(filtersStore);
+
+const handleRemoveTags = (value) => {
+  const index = tags.value.findIndex((el) => el === value);
+  index !== -1 && tags.value.splice(index, 1);
+};
 </script>
 
 <template>
@@ -35,7 +40,9 @@ const { search, tags, types, sortTypes } = storeToRefs(filtersStore);
           :options="linksStore.getCats"
           placeholder="Tags"
           has-input
+          removable
           :input-action="false"
+          @remove-value="handleRemoveTags"
         />
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { setFilters, getFilters, removeFilters } from '@/services/filter-manager';
 
 // TODO: sort
 export const useFilterStore = defineStore('filters', {
@@ -38,11 +39,28 @@ export const useFilterStore = defineStore('filters', {
         ~itemIndex
           ? resultValues.splice(itemIndex, 1)
           : Array.isArray(data)
-          ? resultValues.push(...data)
-          : resultValues.push(data);
+            ? resultValues.push(...data)
+            : resultValues.push(data);
 
         this.$patch({ [entity]: resultValues });
       }
+    },
+
+    saveFilters() {
+      try {
+        setFilters(this.$state);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+
+    initFilters() {
+      this.$state = { ...getFilters() };
+    },
+
+    resetFilters() {
+      removeFilters();
+      this.$reset();
     },
   },
 });

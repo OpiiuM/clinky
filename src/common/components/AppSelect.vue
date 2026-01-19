@@ -50,10 +50,11 @@ const emits = defineEmits(['update:modelValue', 'add-value', 'remove-value']);
 const isOpen = ref(false);
 const field = ref('');
 
+// TODO: перепроверить работоспособность
 const sortedOptions = computed(() => {
-  return [...props.options].filter((item) => {
+  return props.options.filter((item) => {
     return item.toLowerCase().includes(field.value.toLowerCase());
-  }).sort();
+  }).toSorted();
 });
 
 const selectValue = computed({

@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import IconEdit from '@/assets/icons/edit.svg';
 import IconStar from '@/assets/icons/star.svg';
 import IconStarChecked from '@/assets/icons/star-checked.svg';
+// import IconPlus from '@/assets/icons/plus.svg';
 
 const props = defineProps({
   id: {
@@ -22,21 +23,58 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  // elo: {
+  //   type: Number,
+  //   default: 0,
+  // },
   isFavorite: {
+    type: Boolean,
+    default: false,
+  },
+  isSelectMode: {
+    type: Boolean,
+    default: false,
+  },
+  isSelected: {
     type: Boolean,
     default: false,
   },
 });
 
-defineEmits(['favorite', 'edit']);
+const emit = defineEmits(['favorite', 'edit', 'addToBuffer']);
 
 const sortByLengthTags = computed(() => {
-  return [...props.category].sort((a, b) => a.length - b.length);
+  return props.category.toSorted((a, b) => a.length - b.length);
 });
+
+const computedClasses = computed(() => ({
+  'card-link--select': props.isSelectMode,
+  'card-link--selected': props.isSelected,
+}));
+
+// const handleAddToStorage = () => {
+//   emits('addStorage', {
+//     id: props.id,
+//     title: props.title,
+//     href: props.href,
+//     category: props.category,
+//     isFavorite: props.isFavorite,
+//   });
+// };
+
+const handleClick = () => {
+  if (!props.isSelectMode) return;
+
+  emit('addToBuffer', props.id);
+};
 </script>
 
 <template>
-  <article class="card-link">
+  <article
+    class="card-link"
+    :class="computedClasses"
+    @click="handleClick"
+  >
     <a
       target="_blank"
       :href="props.href"
@@ -70,6 +108,10 @@ const sortByLengthTags = computed(() => {
         class="card-link__actions-icon card-link__actions-icon--favorite icon icon--button"
         @click="$emit('favorite', false)"
       />
+      <!-- <icon-plus
+        class="card-link__actions-icon card-link__actions-icon--edit icon icon--button"
+        @click="handleAddToStorage"
+      /> -->
       <icon-edit
         class="card-link__actions-icon card-link__actions-icon--edit icon icon--button"
         @click="$emit('edit', id)"
@@ -79,6 +121,8 @@ const sortByLengthTags = computed(() => {
 </template>
 
 <style lang="scss" scoped>
+// TODO: скин давно некликнутой ссылки
+
 .card-link {
   position: relative;
 
@@ -89,6 +133,20 @@ const sortByLengthTags = computed(() => {
 
   border-radius: rem($border-radius-micro);
   background-color: $white;
+
+  &--select {
+    cursor: pointer;
+  }
+
+  &--select & {
+    &__link {
+      display: none;
+    }
+  }
+
+  &--selected {
+    outline: rem(4px) solid orange;
+  }
 
   &__link {
     @include position-stretching(absolute);

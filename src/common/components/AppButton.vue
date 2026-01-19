@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+const props = defineProps({
   tag: {
     type: String,
     default: 'button',
@@ -8,17 +10,26 @@ defineProps({
     type: String,
     default: 'blue',
     validator(value) {
-      return ['blue', 'orange', 'green', 'red'].includes(value);
+      return ['blue', 'orange', 'green', 'red', 'purple', 'black'].includes(value);
     },
   },
+  outline: {
+    type: Boolean,
+    default: false,
+  },
 });
+
+const computedClass = computed(() => ({
+  [`button--${props.color}`]: props.color,
+  'button--outline': props.outline,
+}));
 </script>
 
 <template>
   <component
     :is="tag"
     class="button"
-    :class="`button--${color}`"
+    :class="computedClass"
   >
     <span
       v-if="$slots.prefix"
@@ -26,9 +37,11 @@ defineProps({
     >
       <slot name="prefix" />
     </span>
+
     <span class="button__text">
       <slot />
     </span>
+
     <span
       v-if="$slots.suffix"
       class="button__suffix"
@@ -103,6 +116,32 @@ defineProps({
   &--red:hover,
   &--red#{&}--active {
     background-color: darken($red, 10%);
+  }
+
+  &--purple {
+    background-color: $purple;
+  }
+
+  &--purple:hover,
+  &--purple#{&}--active {
+    background-color: darken($purple, 10%);
+  }
+
+  &--black {
+    color: $white;
+    border-color: #444;
+    background-color: $black;
+  }
+
+  &--black:hover,
+  &--black#{&}--active {
+    color: $white;
+    background-color: lighten($black, 10%);
+  }
+  
+  &--outline {
+    border: rem(1px) solid $silver-chalice;
+    background-color: transparent !important;
   }
 
   &__prefix {

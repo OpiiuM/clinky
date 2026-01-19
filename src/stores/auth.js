@@ -7,9 +7,9 @@ export const useAuthStore = defineStore('auth', {
     async login({ email, password }) {
       try {
         await authService.login({ email, password });
-        const responce = await authService.checkAuth();
+        const response = await authService.checkAuth();
 
-        return responce;
+        return response;
       } catch (error) {
         throw Error(error);
       }
@@ -18,9 +18,9 @@ export const useAuthStore = defineStore('auth', {
     async register({ email, password }) {
       try {
         await authService.register({ email, password });
-        const responce = await authService.checkAuth();
+        const response = await authService.checkAuth();
 
-        return responce;
+        return response;
       } catch (error) {
         throw Error(error);
       }
@@ -29,9 +29,9 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       try {
         await authService.logout();
-        const responce = await authService.checkAuth();
+        const response = await authService.checkAuth();
 
-        return responce;
+        return response;
       } catch (error) {
         throw Error(error);
       }

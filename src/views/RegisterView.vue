@@ -89,11 +89,11 @@ const handleSubmit = async () => {
               </app-button>
               <app-button
                 tag="router-link"
-                to="/"
+                to="/signin"
                 color="green"
                 class="form__action"
               >
-                Вернуться на главную
+                Авторизация
               </app-button>
             </div>
           </form>
@@ -108,7 +108,7 @@ const handleSubmit = async () => {
   @media #{$screen-laptop} {
     display: flex;
 
-    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   &__block {

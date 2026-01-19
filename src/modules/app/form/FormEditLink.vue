@@ -6,6 +6,7 @@ import { required, maxLength } from '@vuelidate/validators';
 import { useLinksStore } from '@/stores';
 import { useCategory } from '@/common/composables';
 import { RULES } from '@/common/constants';
+import { getLocaleDate } from '@/common/helpers/date';
 
 const props = defineProps({
   id: {
@@ -19,6 +20,14 @@ const emits = defineEmits(['submit']);
 const linksStore = useLinksStore();
 const { setCategory } = useCategory();
 
+const linkToEdit = { ...linksStore.getLinkById(props.id) };
+const link = ref(linkToEdit);
+
+const computedDate = computed(() => {
+  return getLocaleDate(link.value.dateCreate);
+});
+
+/** Form Validation */
 const rules = computed(() => ({
   link: {
     title: {
@@ -28,9 +37,6 @@ const rules = computed(() => ({
     href: { required },
   },
 }));
-
-const linkToEdit = { ...linksStore.getLinkById(props.id) };
-const link = ref(linkToEdit);
 
 const v$ = useVuelidate(rules, { link });
 
@@ -75,9 +81,16 @@ const handleSubmit = async () => {
     class="form"
     @submit.prevent="handleSubmit"
   >
-    <div class="form__block">
+    <div class="form__block form__block--header">
       <h2 class="form__title">Ссылка "{{ link.id }}"</h2>
+      <p
+        v-if="computedDate"
+        class="form__subtitle"
+      >
+        Создан: {{ computedDate }}
+      </p>
     </div>
+
     <div class="form__block">
       <div class="form__field">
         <app-input

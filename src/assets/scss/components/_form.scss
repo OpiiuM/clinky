@@ -7,6 +7,12 @@
     &--row {
       display: flex;
     }
+
+    &--header {
+      padding-bottom: rem($gap-medium);
+
+      border-bottom: rem(1px) solid $white;
+    }
 	}
 
 	&__field {
@@ -19,6 +25,12 @@
 	}
 
   &__title {
+    color: $white;
+  }
+
+  &__subtitle {
+    margin-top: rem($gap-mini);
+
     color: $white;
   }
 

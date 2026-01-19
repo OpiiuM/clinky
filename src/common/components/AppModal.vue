@@ -91,9 +91,7 @@ watch(isOpen, () => {
   }
 
   &__content {
-    // overflow-y: auto;
-
-    max-height: 90vh;
+    max-height: 90dvh;
     padding: rem($gap-medium);
   }
 }

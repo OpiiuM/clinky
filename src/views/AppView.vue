@@ -1,32 +1,40 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useMediaQuery } from '@vueuse/core';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useLinksStore, useFilterStore, useAuthStore } from '@/stores';
-import { COUNTDOWN_DATE } from '@/common/constants';
+import { storeToRefs } from 'pinia';
+import { useLinksStore, useFilterStore, useAuthStore, useModalStore } from '@/stores';
 
+import TheSidebar from '@/modules/app/TheSidebar.vue';
+import FormCreateLink from '@/modules/app/form/FormCreateLink.vue';
 import TheFilter from '@/modules/app/TheFilter.vue';
 import TheCardBox from '@/modules/app/TheCardBox.vue';
 import CountdownTimer from '@/modules/app/CountdownTimer.vue';
 
-import IconAngle from '@/assets/icons/angle-down.svg';
+import { useDates } from '@/common/composables';
+import { useResponsive } from '@/common/composables/useResponsive';
+import FormEditMultipleLinks from '@/modules/app/form/FormEditMultipleLinks.vue';
 
 const router = useRouter();
 
-const { fetchLinks } = useLinksStore();
+const linksStore = useLinksStore();
+const { isSelectMode, bufferCards } = storeToRefs(linksStore);
+const { fetchLinks, toggleSelectMode, deleteBufferedLinks } = linksStore;
+
 const filterStore = useFilterStore();
 const { logout } = useAuthStore();
+const modalStore = useModalStore();
+const { modalCreate, modalMultipleEdit, modalConfirmRemoveLinks } = storeToRefs(modalStore);
+const { handleOpenModal, handleCloseModal } = modalStore;
 
-const notTablet = useMediaQuery('(max-width: 1023px)');
-
-const isOpenMobileMenu = ref(false);
-
-void fetchLinks();
+onMounted(async () => {
+  await fetchLinks();
+  filterStore.initFilters();
+});
 
 const handleLogout = async () => {
-  const responce = await logout();
+  const response = await logout();
 
-  if (responce === 'Error') {
+  if (response === 'Error') {
     router.push('/');
     filterStore.$reset();
   } else {
@@ -34,59 +42,219 @@ const handleLogout = async () => {
   }
 };
 
-const handleReset = () => {
-  filterStore.$reset();
+const { convert } = useDates();
+
+const handleImportBookmarks = () => {
+  const $input = document.createElement('input');
+  $input.setAttribute('class', 'hidden');
+  $input.setAttribute('type', 'file');
+  $input.setAttribute('name', 'upload');
+  $input.setAttribute('accept', '.html');
+  $input.setAttribute('required', true);
+
+  $input.addEventListener('cancel', () => console.error('Cancelled'));
+  $input.addEventListener('change', () => {
+    const file = $input.files[0];
+
+    if (!file || file.type !== 'text/html') {
+      console.error('Cancelled');
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.addEventListener('load', async (e) => {
+      const html = e.target.result;
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      const links = [...doc.querySelectorAll('a')];
+
+      const result = links.map((a) => ({
+        href: a.getAttribute('href') || '',
+        title: (a.textContent.trim().slice(0, 96) + '...') || '',
+        isFavorite: false,
+        category: ['no-sort'],
+        dateCreate: convert(new Date()),
+      }));
+
+      if (!result.length) return;
+
+      for (const itemLink of result) {
+        await linksStore.addLink(itemLink);
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+
+      // TODO: result -> add Stack
+      // TODO: check similar
+    });
+
+    reader.addEventListener('error', () => {
+      console.error('error', reader.error);
+    });
+
+    reader.readAsText(file);
+  });
+
+  document.body.appendChild($input);
+  $input.click();
+  document.body.removeChild($input);
 };
 
-const now = Date.now(); 
-const date = new Date(COUNTDOWN_DATE).getTime();
-const diff = computed(() => date - now);
+const { isMobile } = useResponsive();
+const sidebarRef = ref(null);
+
+const saveFiltersCount = ref(0);
+
+const saveFiltersTitle = computed(() => {
+  return saveFiltersCount.value
+    ? `Сохранить фильтры ${saveFiltersCount.value}`
+    : 'Сохранить фильтры';
+});
+
+const handleClickSaveFilters = () => {
+  filterStore.saveFilters();
+  saveFiltersCount.value += 1;
+  sidebarRef.value?.handleCloseMobileMenu();
+};
+
+const handleReset = () => {
+  filterStore.resetFilters();
+  saveFiltersCount.value = 0;
+};
+
+const editCardsTitle = computed(() => {
+  return isSelectMode.value ? 'Отменить' : 'Редактировать';
+});
 </script>
 
 <template>
   <div class="page__container">
-    <div
-      class="page__sidebar sidebar"
-      :class="{ 'sidebar--open': notTablet && isOpenMobileMenu }"
+    <the-sidebar
+      ref="sidebarRef"
+      class="page__sidebar"
     >
-      <div
-        v-if="notTablet"
-        class="sidebar__toggle"
+      <the-filter class="sidebar__filter" />
+
+      <app-button
+        style="margin-top: 16px;"
+        @click="toggleSelectMode"
       >
-        <icon-angle
-          class="sidebar__icon icon icon--button"
-          @click="isOpenMobileMenu = !isOpenMobileMenu"
-        />
-      </div>
-      <div class="sidebar__content">
-        <the-filter class="sidebar__filter" />
+        {{ editCardsTitle }}
+      </app-button>
 
-        <countdown-timer
-          v-if="diff > 0"
-          :time="diff"
-          class="sidebar__countdown"
-        />
+      <template v-if="bufferCards.length > 0">
+        <app-button
+          color="red"
+          style="margin-top: 10px;"
+          @click="handleOpenModal('modalConfirmRemoveLinks')"
+        >
+          Удалить ссылки
+        </app-button>
 
-        <div class="sidebar__actions">
-          <app-button
-            class="sidebar__actions-item"
-            color="orange"
-            @click="handleReset"
-          >
-            Сбросить фильтры
-          </app-button>
-          <app-button
-            class="sidebar__actions-item"
-            color="green"
-            @click="handleLogout"
-          >
-            Разлогиниться
-          </app-button>
-        </div>
+        <app-button
+          color="orange"
+          style="margin-top: 10px;"
+          @click="handleOpenModal('modalMultipleEdit')"
+        >
+          Редактировать ссылки
+        </app-button>
+      </template>
+
+      <app-button
+        style="margin-top: 10px;"
+        color="purple"
+        @click="handleClickSaveFilters"
+      >
+        {{ saveFiltersTitle }}
+      </app-button>
+
+      <app-button
+        style="margin-top: 10px; margin-bottom: auto"
+        color="blue"
+        @click="handleOpenModal('modalCreate')"
+      >
+        Создать ссылку
+      </app-button>
+
+      <div
+        v-if="!isMobile"
+        class="sidebar__countdown"
+      >
+        <countdown-timer class="sidebar__countdown-item" />
       </div>
-    </div>
-    <div class="page__content">
+
+      <div class="sidebar__actions">
+        <app-button
+          class="sidebar__actions-item"
+          color="orange"
+          @click="handleReset"
+        >
+          Сбросить фильтры
+        </app-button>
+
+        <app-button
+          v-if="!isMobile"
+          color="green"
+          class="sidebar__actions-item"
+          @click="handleImportBookmarks"
+        >
+          Импортировать
+        </app-button>
+
+        <app-button
+          class="sidebar__actions-item"
+          color="black"
+          @click="handleLogout"
+        >
+          Разлогиниться
+        </app-button>
+      </div>
+    </the-sidebar>
+
+    <!-- TODO: создание категорий -->
+    <main class="page__content">
       <the-card-box />
-    </div>
+    </main>
   </div>
+
+  <app-modal
+    :is-open="modalCreate"
+    @close="handleCloseModal('modalCreate')"
+  >
+    <form-create-link @submit="handleCloseModal('modalCreate')" />
+  </app-modal>
+
+  <app-modal
+    :is-open="modalMultipleEdit"
+    @close="handleCloseModal('modalMultipleEdit')"
+  >
+    <form-edit-multiple-links
+      @submit="handleCloseModal('modalMultipleEdit')"
+    />
+  </app-modal>
+
+  <app-modal
+    :is-open="modalConfirmRemoveLinks"
+    @close="handleCloseModal('modalConfirmRemoveLinks')"
+  >
+    <h2 style="text-align: center;">Удалить выбранные ссылки?</h2>
+
+    <div style="display: flex; gap: 20px; align-items: center; justify-content: center;">
+      <app-button
+        color="green"
+        @click="[deleteBufferedLinks(), handleCloseModal('modalConfirmRemoveLinks')]"
+      >
+        Подтвердить
+      </app-button>
+
+      <app-button
+        color="red"
+        @click="handleCloseModal('modalConfirmRemoveLinks')"
+      >
+        Отменить
+      </app-button>
+    </div>
+  </app-modal>
 </template>

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
 
-  min-height: 100vh;
+  min-height: 100dvh;
 
   color: $white;
   background-color: #242424;
@@ -10,13 +10,8 @@
   &--app & {
     &__container {
       @media #{$screen-laptop} {
-        display: grid;
+        display: flex;
         overflow: hidden;
-        grid-template-columns: rem(250px) 1fr;
-      }
-  
-      @media #{$screen-desktop} {
-        grid-template-columns: rem(300px) 1fr;
       }
     }
 
@@ -33,6 +28,17 @@
         border-top-left-radius: rem(16px);
         border-bottom-left-radius: rem(16px);
         box-shadow: 0 0 rem($gap-mini) $boston-blue;
+      }
+    }
+
+    &__sidebar {
+      height: calc(100% - 60px);
+
+      @media #{$screen-laptop} {
+        flex-shrink: 0;
+
+        width: rem(300px);
+        height: 100dvh;
       }
     }
   }

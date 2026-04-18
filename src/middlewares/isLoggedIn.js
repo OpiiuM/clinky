@@ -17,6 +17,6 @@ export const isLoggedIn = async () => {
   if (await getCurrentUser()) {
     return true;
   } else {
-    return { path: '/auth' };
+    return { path: '/' };
   }
 };

@@ -1,12 +1,19 @@
 <script setup>
-import { onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
-import AppLayout from '@/layouts/AppLayout.vue';
+import AppLayout from '@/app/layouts/AppLayout.vue';
+import { getToken } from '@/shared/api';
 
 const router = useRouter();
 
-onMounted(() => {
-  router.push('/signin');
+const token = ref(getToken());
+
+watch(token, (value) => {
+  if (!value) {
+    router.push('/');
+  }
+}, {
+  immediate: true,
 });
 </script>
 

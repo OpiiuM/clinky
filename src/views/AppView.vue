@@ -9,6 +9,7 @@ import FormCreateLink from '@/modules/app/form/FormCreateLink.vue';
 import TheFilter from '@/modules/app/TheFilter.vue';
 import TheCardBox from '@/modules/app/TheCardBox.vue';
 import CountdownTimer from '@/modules/app/CountdownTimer.vue';
+import TheNavigation from '@/features/navigation/ui/TheNavigation.vue';
 
 import { useDates } from '@/common/composables';
 import { useResponsive } from '@/common/composables/useResponsive';
@@ -202,18 +203,11 @@ const editCardsTitle = computed(() => {
         >
           Импортировать
         </app-button>
-
-        <app-button
-          class="sidebar__actions-item"
-          color="black"
-          @click="handleLogout"
-        >
-          Разлогиниться
-        </app-button>
       </div>
+
+      <the-navigation />
     </the-sidebar>
 
-    <!-- TODO: создание категорий -->
     <main class="page__content">
       <the-card-box />
     </main>

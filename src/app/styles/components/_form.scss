@@ -1,0 +1,44 @@
+.form {
+	&__block {
+		@include resetting-vertical-indentation-of-first;
+
+		margin-top: rem($gap-medium);
+
+    &--row {
+      display: flex;
+    }
+
+    &--header {
+      padding-bottom: rem($gap-medium);
+
+      border-bottom: rem(1px) solid $white;
+    }
+	}
+
+	&__field {
+		display: flex;
+		flex-direction: column;
+
+		margin-top: rem($gap-small);
+
+		@include resetting-vertical-indentation-of-first;
+	}
+
+  &__title {
+    color: $white;
+  }
+
+  &__subtitle {
+    margin-top: rem($gap-mini);
+
+    color: $white;
+  }
+
+  &__action {
+    margin-left: rem($gap-mini);
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}

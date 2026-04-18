@@ -1,14 +1,12 @@
 <script setup>
 import { ref, computed, useAttrs } from 'vue';
-import IconAngle from '@/assets/icons/angle-down.svg';
-import { useResponsive } from '@/common/composables/useResponsive';
+import IconAngle from '@/shared/assets/icons/angle-down.svg';
+import { useResponsive } from '@/shared/lib';
 
 const { isDesktop } = useResponsive();
 const attrs = useAttrs();
 
 const isOpenMobileMenu = ref(false);
-// const touchStartY = ref(0);
-// const touchEndY = ref(0);
 
 const handleCloseMobileMenu = () => {
   isOpenMobileMenu.value = false;
@@ -19,29 +17,6 @@ const isOpenCondition = computed(() => !isDesktop.value && isOpenMobileMenu.valu
 const computedClass = computed(() => ({
   'sidebar--open': isOpenCondition.value,
 }));
-
-// // Обработка начала касания
-// const handleTouchStart = (e) => {
-//   touchStartY.value = e.touches[0].clientY;
-// };
-
-// // Обработка движения пальца
-// const handleTouchMove = (e) => {
-//   touchEndY.value = e.touches[0].clientY;
-// };
-
-// // Обработка окончания касания — проверка свайпа
-// const handleTouchEnd = () => {
-//   if (!isOpenMobileMenu.value) return;
-
-//   const deltaY = touchEndY.value - touchStartY.value;
-//   const threshold = 50; // Минимальное расстояние свайпа
-
-//   // Свайп вниз: touchEndY > touchStartY
-//   if (deltaY > threshold) {
-//     isOpenMobileMenu.value = false;
-//   }
-// };
 
 defineExpose({
   handleCloseMobileMenu,

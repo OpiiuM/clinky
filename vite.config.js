@@ -33,6 +33,10 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '~': fileURLToPath(new URL('./', import.meta.url)),
+      '@app': fileURLToPath(new URL('./src/app', import.meta.url)),
+      '@pages': fileURLToPath(new URL('./src/pages', import.meta.url)),
+      '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
+      '@shared': fileURLToPath(new URL('./src/shared', import.meta.url)),
     },
   },
   css: {
@@ -41,9 +45,9 @@ export default defineConfig({
         additionalData: `
           @use "sass:math";
           @use "sass:list";
-          @import "./src/assets/scss/abstracts/_functions.scss";
-          @import "./src/assets/scss/abstracts/_variables.scss";
-          @import "./src/assets/scss/abstracts/_mixins.scss";
+          @import "./src/app/styles/abstracts/_functions.scss";
+          @import "./src/app/styles/abstracts/_variables.scss";
+          @import "./src/app/styles/abstracts/_mixins.scss";
         `,
       },
     },

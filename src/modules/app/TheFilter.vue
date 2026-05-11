@@ -9,7 +9,13 @@ import { CARD_TYPES, SORT_TYPES } from '@/common/constants';
 const linksStore = useLinksStore();
 const filtersStore = useFilterStore();
 
-const { search, tags, types, sortTypes } = storeToRefs(filtersStore);
+const {
+  search,
+  tags,
+  matchAnyTag,
+  types,
+  sortTypes,
+} = storeToRefs(filtersStore);
 
 const handleRemoveTags = (value) => {
   const index = tags.value.findIndex((el) => el === value);
@@ -44,6 +50,11 @@ const handleRemoveTags = (value) => {
           :input-action="false"
           @remove-value="handleRemoveTags"
         />
+      </div>
+      <div class="filter__row">
+        <app-checkbox v-model="matchAnyTag">
+          Любой выбранный тег
+        </app-checkbox>
       </div>
     </div>
     <div class="filter__group">

@@ -41,6 +41,28 @@ const handleRemove = (value) => {
   index !== -1 && state.category.splice(index, 1);
 };
 
+const getUrlHostname = (value) => {
+  try {
+    const urlText = value.trim();
+    const url = new URL(urlText);
+
+    return url.hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+};
+
+const handlePasteHref = (event) => {
+  if (state.title.trim()) return;
+
+  const pastedText = event.clipboardData?.getData('text') || '';
+  const hostname = getUrlHostname(pastedText);
+
+  if (hostname) {
+    state.title = hostname;
+  }
+};
+
 const handleSubmit = async () => {
   const isValid = await v$.value.$validate();
 
@@ -95,6 +117,7 @@ const handleSubmit = async () => {
           placeholder="https://google.com"
           :hasError="!!v$.href.$errors.length"
           :errorText="v$.href.$errors[0]?.$message"
+          @paste="handlePasteHref"
         />
       </div>
       <div class="form__field">

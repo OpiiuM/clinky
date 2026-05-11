@@ -27,7 +27,7 @@ const formatMonth = (monthKey) => {
   const [year, month] = monthKey.split('-');
   const monthNames = [
     'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
   ];
   return `${monthNames[parseInt(month) - 1]} ${year}`;
 };
@@ -93,6 +93,7 @@ const handleSelectMonth = (month) => {
               v-for="card in historyCards"
               :key="card.id"
               class="history__card"
+              :class="{ 'history__card--priority': card.isPriorityFocus }"
             >
               <span class="history__card-title">{{ card.title }}</span>
               <span class="history__card-count">{{ card.count }}</span>
@@ -195,6 +196,11 @@ const handleSelectMonth = (month) => {
     background: $mine-shaft-3;
     border-radius: $border-radius-micro;
     border: rem(1px) solid rgba($white, 0.05);
+
+    &--priority {
+      border-color: rgba($white, 0.9);
+      box-shadow: 0 0 rem(3px) rem(4px) rgba($white, 0.25);
+    }
 
     &-title {
       font-size: rem(14px);

@@ -1,5 +1,6 @@
 import { isLoggedIn } from '@/middlewares/isLoggedIn';
 
+// TODO: Layout wrapper route
 export default [
   {
     path: '/',

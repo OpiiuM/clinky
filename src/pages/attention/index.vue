@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAttentionStore } from '@/stores';
 import TheSidebar from '@/features/links/ui/TheSidebar.vue';
@@ -7,10 +7,25 @@ import TheNavigation from '@/features/navigation/ui/TheNavigation.vue';
 import { AttentionCard, AttentionForm, AttentionHistory } from '@/features/attention';
 
 const attentionStore = useAttentionStore();
-const { cards, isLoading, historyData, ascCards } = storeToRefs(attentionStore);
+const { activeCards, archivedCards, isLoading, historyData } = storeToRefs(attentionStore);
 
 const isHistoryOpen = ref(false);
+const isArchiveOpen = ref(false);
 const historyMonths = ref([]);
+
+const visibleCards = computed(() => {
+  return isArchiveOpen.value ? archivedCards.value : activeCards.value;
+});
+
+const emptyTitle = computed(() => {
+  return isArchiveOpen.value ? 'Архив пуст' : 'Нет карточек внимания';
+});
+
+const emptyDescription = computed(() => {
+  return isArchiveOpen.value
+    ? 'Карточки, перенесенные в архив, появятся здесь'
+    : 'Создайте первую карточку выше';
+});
 
 onMounted(async () => {
   await attentionStore.fetchCards();
@@ -26,6 +41,14 @@ const handleIncrement = async (cardId) => {
 
 const handleDelete = async (cardId) => {
   await attentionStore.deleteCard(cardId);
+};
+
+const handleArchive = async (cardId) => {
+  await attentionStore.archiveCard(cardId);
+};
+
+const handleRestore = async (cardId) => {
+  await attentionStore.restoreCard(cardId);
 };
 
 const handleTogglePriority = async (cardId) => {
@@ -70,25 +93,36 @@ const handleSelectMonth = async (month) => {
           Загрузка...
         </div>
 
-        <div v-else-if="!cards.length" class="attention-page__empty">
-          <p>Нет карточек внимания</p>
-          <p>Создайте первую карточку выше</p>
+        <div v-else-if="!visibleCards.length" class="attention-page__empty">
+          <p>{{ emptyTitle }}</p>
+          <p>{{ emptyDescription }}</p>
         </div>
 
         <div v-else class="attention-page__grid">
           <attention-card
-            v-for="card in ascCards"
+            v-for="card in visibleCards"
             :key="card.id"
             :card="card"
             :can-increment="attentionStore.canIncrement(card)"
             :can-toggle-priority-focus="attentionStore.canTogglePriorityFocus(card)"
+            :is-archived-view="isArchiveOpen"
             @increment="handleIncrement"
             @delete="handleDelete"
+            @archive="handleArchive"
+            @restore="handleRestore"
             @toggle-priority="handleTogglePriority"
           />
         </div>
 
         <footer class="attention-page__footer">
+          <button
+            type="button"
+            class="attention-page__btn attention-page__btn--secondary"
+            style="margin-right: auto;"
+            @click="isArchiveOpen = !isArchiveOpen"
+          >
+            {{ isArchiveOpen ? 'Активные' : 'Архив' }}
+          </button>
           <button
             type="button"
             class="attention-page__btn attention-page__btn--secondary"
@@ -99,6 +133,7 @@ const handleSelectMonth = async (month) => {
           <button
             type="button"
             class="attention-page__btn attention-page__btn--danger"
+            :disabled="isArchiveOpen"
             @click="handleReset"
           >
             Обнулить

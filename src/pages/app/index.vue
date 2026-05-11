@@ -24,7 +24,7 @@ const { handleCloseModal } = modalStore;
 
 onMounted(async () => {
   await fetchLinks();
-  filterStore.initFilters();
+  await filterStore.initFilters();
 });
 
 // const handleLogout = async () => {
@@ -108,14 +108,20 @@ const saveFiltersTitle = computed(() => {
     : 'Сохранить фильтры';
 });
 
-const handleClickSaveFilters = () => {
-  filterStore.saveFilters();
+const handleClickSaveFilters = async () => {
+  await filterStore.saveFilters();
   saveFiltersCount.value += 1;
   sidebarRef.value?.handleCloseMobileMenu();
 };
 
-const handleReset = () => {
-  filterStore.resetFilters();
+const handleReset = async (event) => {
+  if (event.ctrlKey) {
+    filterStore.$reset();
+    saveFiltersCount.value = 0;
+    return;
+  }
+
+  await filterStore.resetFilters();
   saveFiltersCount.value = 0;
 };
 
@@ -185,7 +191,7 @@ const editCardsTitle = computed(() => {
         <app-button
           class="sidebar__actions-item"
           color="orange"
-          @click="handleReset"
+          @click="handleReset($event)"
         >
           Сбросить фильтры
         </app-button>

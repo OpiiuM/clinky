@@ -49,9 +49,11 @@ export const useLinksStore = defineStore('links', {
       };
 
       const tagsFilter = ({ category }) => {
-        return filterStore.filters.tags.every(
-          (tag) => (category.includes(tag)),
-        );
+        if (filterStore.filters.matchAnyTag) {
+          return filterStore.filters.tags.some((tag) => category.includes(tag));
+        }
+
+        return filterStore.filters.tags.every((tag) => category.includes(tag));
       };
 
       const favoriteFilter = ({ isFavorite }) => isFavorite;

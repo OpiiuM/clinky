@@ -1,22 +1,39 @@
 import { defineStore } from 'pinia';
-import { setFilters, getFilters, removeFilters } from '@/services/filter-manager';
+import filterService from '@/services/filter-service';
+import { getToken } from '@/services/token-manager';
+
+const getDefaultFilters = () => ({
+  search: '',
+  tags: [],
+  matchAnyTag: false,
+  types: [],
+  sortTypes: [],
+});
+
+const normalizeStringArray = (value) => {
+  return Array.isArray(value) ? value.filter((item) => typeof item === 'string') : [];
+};
+
+const normalizeFilters = (filters = {}) => ({
+  search: typeof filters.search === 'string' ? filters.search : '',
+  tags: normalizeStringArray(filters.tags),
+  matchAnyTag: Boolean(filters.matchAnyTag),
+  types: normalizeStringArray(filters.types),
+  sortTypes: normalizeStringArray(filters.sortTypes),
+});
 
 // TODO: sort
 export const useFilterStore = defineStore('filters', {
-  state: () => ({
-    search: '',
-    tags: [],
-    types: [],
-    sortTypes: [],
-  }),
+  state: getDefaultFilters,
 
   getters: {
     filters: (state) => {
-      const { search, tags, types } = state;
+      const { search, tags, matchAnyTag, types } = state;
 
       return {
         search,
         tags,
+        matchAnyTag,
         types,
       };
     },
@@ -46,21 +63,47 @@ export const useFilterStore = defineStore('filters', {
       }
     },
 
-    saveFilters() {
+    async saveFilters() {
       try {
-        setFilters(this.$state);
+        const userId = getToken();
+
+        if (!userId) return;
+
+        await filterService.saveFilters(userId, normalizeFilters(this.$state));
       } catch (e) {
         console.error(e);
       }
     },
 
-    initFilters() {
-      this.$state = { ...getFilters() };
+    async initFilters() {
+      try {
+        const userId = getToken();
+
+        if (!userId) return;
+
+        const filters = await filterService.getFilters(userId);
+
+        this.$patch({
+          ...getDefaultFilters(),
+          ...normalizeFilters(filters),
+        });
+      } catch (e) {
+        console.error(e);
+      }
     },
 
-    resetFilters() {
-      removeFilters();
-      this.$reset();
+    async resetFilters() {
+      try {
+        const userId = getToken();
+
+        if (userId) {
+          await filterService.removeFilters(userId);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        this.$reset();
+      }
     },
   },
 });

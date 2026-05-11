@@ -18,9 +18,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isArchivedView: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(['increment', 'delete', 'toggle-priority']);
+const emit = defineEmits(['increment', 'delete', 'toggle-priority', 'archive', 'restore']);
 
 const isDisabled = computed(() => !props.canIncrement);
 const isPriorityFocus = computed(() => Boolean(props.card?.isPriorityFocus));
@@ -35,7 +39,7 @@ const isPriorityFocus = computed(() => Boolean(props.card?.isPriorityFocus));
     }"
   >
     <button
-      v-if="canTogglePriorityFocus"
+      v-if="canTogglePriorityFocus && !isArchivedView"
       type="button"
       class="attention-card__priority"
       :class="{ 'attention-card__priority--active': isPriorityFocus }"
@@ -47,9 +51,9 @@ const isPriorityFocus = computed(() => Boolean(props.card?.isPriorityFocus));
 
     <button
       type="button"
-      class="attention-card__delete"
-      title="Удалить карточку"
-      @click="emit('delete', card.id)"
+      class="attention-card__archive"
+      :title="isArchivedView ? 'Удалить карточку навсегда' : 'Перенести в архив'"
+      @click="emit(isArchivedView ? 'delete' : 'archive', card.id)"
     >
       <icon-close class="icon icon--small" />
     </button>
@@ -60,6 +64,7 @@ const isPriorityFocus = computed(() => Boolean(props.card?.isPriorityFocus));
     </div>
 
     <button
+      v-if="!isArchivedView"
       type="button"
       class="attention-card__increment"
       :disabled="isDisabled"
@@ -69,6 +74,16 @@ const isPriorityFocus = computed(() => Boolean(props.card?.isPriorityFocus));
       <icon-plus class="icon" />
       <span v-if="!isDisabled">+1</span>
       <span v-else class="attention-card__done">Готово</span>
+    </button>
+
+    <button
+      v-else
+      type="button"
+      class="attention-card__restore"
+      title="Вернуть карточку в активный список"
+      @click="emit('restore', card.id)"
+    >
+      Восстановить
     </button>
   </div>
 </template>
@@ -120,7 +135,7 @@ $priority-color: $white;
   }
 
   &__priority,
-  &__delete {
+  &__archive {
     position: absolute;
     top: rem(6px);
     display: flex;
@@ -168,7 +183,7 @@ $priority-color: $white;
     }
   }
 
-  &__delete {
+  &__archive {
     right: rem(6px);
     border: none;
     background: rgba($red, 0.25);
@@ -191,8 +206,8 @@ $priority-color: $white;
     pointer-events: auto;
   }
 
-  &:hover &__delete,
-  &:focus-within &__delete {
+  &:hover &__archive,
+  &:focus-within &__archive {
     opacity: 1;
   }
 
@@ -278,6 +293,33 @@ $priority-color: $white;
         width: rem(16px);
         height: rem(16px);
       }
+    }
+  }
+
+  &__restore {
+    width: 100%;
+    padding: rem(10px);
+    border: rem(1px) solid rgba($white, 0.15);
+    border-radius: $border-radius-micro;
+    background: $mine-shaft-4;
+    color: $white;
+    font-family: inherit;
+    font-size: rem(13px);
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: transform $transition-duration $transition-function,
+                border-color $transition-duration $transition-function,
+                background $transition-duration $transition-function;
+
+    @media #{$screen-tablet} {
+      padding: rem(12px);
+      font-size: rem(14px);
+    }
+
+    &:hover {
+      transform: scale(1.02);
+      border-color: rgba($white, 0.25);
+      background: $tundora;
     }
   }
 

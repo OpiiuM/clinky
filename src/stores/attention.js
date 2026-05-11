@@ -20,6 +20,7 @@ const normalizeCard = (id, card) => ({
   id,
   ...card,
   isPriorityFocus: Boolean(card?.isPriorityFocus),
+  isArchived: Boolean(card?.isArchived),
 });
 
 const normalizeCards = (data) => {
@@ -45,15 +46,29 @@ export const useAttentionStore = defineStore('attention', {
     },
 
     hasUnsavedChanges: (state) => {
-      return state.cards.some((card) => card.count > 0);
+      return state.cards.some((card) => !card.isArchived && card.count > 0);
     },
 
     ascCards: (state) => {
-      return state.cards.toSorted((a, b) => b.count - a.count);
+      return state.cards
+        .filter((card) => !card.isArchived)
+        .toSorted((a, b) => b.count - a.count);
+    },
+
+    activeCards: (state) => {
+      return state.cards
+        .filter((card) => !card.isArchived)
+        .toSorted((a, b) => b.count - a.count);
+    },
+
+    archivedCards: (state) => {
+      return state.cards
+        .filter((card) => card.isArchived)
+        .toSorted((a, b) => b.count - a.count);
     },
 
     priorityFocusCount: (state) => {
-      return state.cards.filter((card) => card.isPriorityFocus).length;
+      return state.cards.filter((card) => !card.isArchived && card.isPriorityFocus).length;
     },
 
     canTogglePriorityFocus: (state) => (card) => {
@@ -63,7 +78,9 @@ export const useAttentionStore = defineStore('attention', {
         return true;
       }
 
-      const priorityFocusCount = state.cards.filter((item) => item.isPriorityFocus).length;
+      const priorityFocusCount = state.cards.filter((item) => {
+        return !item.isArchived && item.isPriorityFocus;
+      }).length;
       return priorityFocusCount < MAX_PRIORITY_FOCUS_CARDS;
     },
   },
@@ -110,22 +127,26 @@ export const useAttentionStore = defineStore('attention', {
       const data = await attentionService.fetchCards(userId);
 
       if (data && Object.keys(data).length) {
+        const activeCards = Object.entries(data).filter(([, card]) => !card.isArchived);
         const historyData = {
           cards: {},
           submittedAt: Date.now(),
         };
 
-        Object.entries(data).forEach(([id, card]) => {
+        activeCards.forEach(([id, card]) => {
           historyData.cards[id] = {
             title: card.title,
             count: card.count || 0,
+            isPriorityFocus: Boolean(card.isPriorityFocus),
           };
         });
 
-        await attentionService.saveMonth(userId, oldMonth, historyData);
+        if (activeCards.length) {
+          await attentionService.saveMonth(userId, oldMonth, historyData);
+        }
 
         // Обнуляем счетчики
-        for (const [id] of Object.entries(data)) {
+        for (const [id] of activeCards) {
           await attentionService.updateCard(userId, id, {
             count: 0,
             lastClickDate: null,
@@ -146,6 +167,7 @@ export const useAttentionStore = defineStore('attention', {
         count: 0,
         lastClickDate: null,
         isPriorityFocus: false,
+        isArchived: false,
       };
 
       const result = await attentionService.createCard(userId, cardData);
@@ -205,11 +227,49 @@ export const useAttentionStore = defineStore('attention', {
       card.isPriorityFocus = nextPriorityFocus;
     },
 
+    async archiveCard(cardId) {
+      const card = this.cards.find((item) => item.id === cardId);
+
+      if (!card) return;
+
+      const userId = getToken();
+
+      await attentionService.updateCard(userId, cardId, {
+        isArchived: true,
+        isPriorityFocus: false,
+        count: 0,
+        lastClickDate: null,
+      });
+
+      card.isArchived = true;
+      card.isPriorityFocus = false;
+      card.count = 0;
+      card.lastClickDate = null;
+    },
+
+    async restoreCard(cardId) {
+      const card = this.cards.find((item) => item.id === cardId);
+
+      if (!card) return;
+
+      const userId = getToken();
+
+      await attentionService.updateCard(userId, cardId, {
+        isArchived: false,
+        count: 0,
+        lastClickDate: null,
+      });
+
+      card.isArchived = false;
+      card.count = 0;
+      card.lastClickDate = null;
+    },
+
     async submitChanges() {
       const userId = getToken();
 
       // Сохраняем текущее состояние всех карточек
-      for (const card of this.cards) {
+      for (const card of this.activeCards) {
         await attentionService.updateCard(userId, card.id, {
           count: card.count,
           lastClickDate: card.lastClickDate,
@@ -222,7 +282,7 @@ export const useAttentionStore = defineStore('attention', {
       const today = getTodayKey();
 
       // Сбрасываем только сегодняшние изменения
-      for (const card of this.cards) {
+      for (const card of this.activeCards) {
         if (card.lastClickDate === today) {
           const newCount = Math.max(0, (card.count || 0) - 1);
 

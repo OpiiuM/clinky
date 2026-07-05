@@ -40,7 +40,7 @@ const gridClass = computed(() => ({
 
 const getSlotClass = (slot) => {
   const isFilled = slot.index < props.stamps;
-  const isCurrent = slot.index === props.stamps && !props.disabled;
+  const isCurrent = slot.index === props.stamps && !props.disabled && props.stamps < props.goal;
 
   return {
     'stamp-grid__slot--filled': isFilled,

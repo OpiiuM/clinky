@@ -5,6 +5,7 @@ import IconClose from '@/assets/icons/close.svg';
 import IconStar from '@/assets/icons/star.svg';
 import IconStarChecked from '@/assets/icons/star-checked.svg';
 import IconEdit from '@/assets/icons/edit.svg';
+import IconGift from '@/assets/icons/gift.svg';
 import AttentionStampGrid from './AttentionStampGrid.vue';
 import AttentionCardSettingsModal from './AttentionCardSettingsModal.vue';
 
@@ -25,6 +26,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isReadyToClaim: {
+    type: Boolean,
+    default: false,
+  },
   isArchivedView: {
     type: Boolean,
     default: false,
@@ -33,6 +38,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'increment',
+  'claim-reward',
   'delete',
   'toggle-priority',
   'archive',
@@ -59,13 +65,20 @@ const triggerRewardPulse = () => {
   }, 600);
 };
 
-const handleIncrement = () => {
-  const willComplete = stamps.value + 1 >= goal.value;
-  emit('increment', props.card.id);
-
-  if (willComplete) {
-    triggerRewardPulse();
+const claimMessage = computed(() => {
+  if (reward.value) {
+    return `Пора забрать награду: ${reward.value}`;
   }
+  return 'Все штампы собраны! Заберите вознаграждение';
+});
+
+const handleIncrement = () => {
+  emit('increment', props.card.id);
+};
+
+const handleClaimReward = () => {
+  emit('claim-reward', props.card.id);
+  triggerRewardPulse();
 };
 
 const openSettings = () => {
@@ -82,8 +95,9 @@ const handleSettingsSave = (settings) => {
   <div
     class="attention-card"
     :class="{
-      'attention-card--disabled': isDisabled,
+      'attention-card--disabled': isDisabled && !isReadyToClaim,
       'attention-card--priority': isPriorityFocus,
+      'attention-card--ready-claim': isReadyToClaim,
     }"
   >
     <button
@@ -114,11 +128,15 @@ const handleSettingsSave = (settings) => {
         :goal="goal"
         :stamps="stamps"
         :reward="reward"
-        :disabled="isDisabled"
+        :disabled="isDisabled || isReadyToClaim"
         :reward-pulse="rewardPulse"
       />
 
-      <p v-if="reward" class="attention-card__reward">
+      <p v-if="isReadyToClaim" class="attention-card__claim-message">
+        {{ claimMessage }}
+      </p>
+
+      <p v-else-if="reward" class="attention-card__reward">
         Награда: <span>{{ reward }}</span>
       </p>
 
@@ -135,7 +153,17 @@ const handleSettingsSave = (settings) => {
     </div>
 
     <button
-      v-if="!isArchivedView"
+      v-if="!isArchivedView && isReadyToClaim"
+      type="button"
+      class="attention-card__claim"
+      @click="handleClaimReward"
+    >
+      <icon-gift class="icon" />
+      <span>Забрать награду</span>
+    </button>
+
+    <button
+      v-else-if="!isArchivedView"
       type="button"
       class="attention-card__increment"
       :disabled="isDisabled"
@@ -192,6 +220,11 @@ $priority-color: $white;
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 rem(8px) rem(24px) rgba($black, 0.3);
+  }
+
+  &--ready-claim {
+    border-color: rgba($mustard, 0.5);
+    box-shadow: 0 0 rem(12px) rgba($mustard, 0.15);
   }
 
   &--disabled {
@@ -329,6 +362,20 @@ $priority-color: $white;
     }
   }
 
+  &__claim-message {
+    margin: 0;
+    font-size: rem(12px);
+    font-weight: $font-weight-medium;
+    color: lighten($mustard, 10%);
+    text-align: center;
+    line-height: 1.4;
+    word-break: break-word;
+
+    @media #{$screen-tablet} {
+      font-size: rem(13px);
+    }
+  }
+
   &__reward {
     margin: 0;
     font-size: rem(11px);
@@ -379,6 +426,41 @@ $priority-color: $white;
       :deep(path) {
         fill: currentColor;
       }
+    }
+  }
+
+  &__claim {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: rem(6px);
+    width: 100%;
+    padding: rem(10px);
+    border: none;
+    border-radius: $border-radius-micro;
+    background: linear-gradient(145deg, $mustard 0%, darken($mustard, 12%) 100%);
+    color: $mine-shaft;
+    font-family: inherit;
+    font-size: rem(13px);
+    font-weight: $font-weight-bold;
+    cursor: pointer;
+    transition: transform $transition-duration $transition-function,
+                box-shadow $transition-duration $transition-function;
+
+    @media #{$screen-tablet} {
+      padding: rem(12px);
+      font-size: rem(14px);
+    }
+
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: 0 rem(4px) rem(16px) rgba($mustard, 0.4);
+    }
+
+    .icon {
+      width: rem(16px);
+      height: rem(16px);
+      color: inherit;
     }
   }
 

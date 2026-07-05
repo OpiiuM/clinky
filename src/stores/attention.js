@@ -22,7 +22,7 @@ const normalizeGoal = (goal) => (goal === 3 ? 3 : 6);
 
 const normalizeStamps = (stamps, goal) => {
   const value = stamps || 0;
-  return Math.min(Math.max(0, value), goal - 1);
+  return Math.min(Math.max(0, value), goal);
 };
 
 const normalizeCard = (id, card) => {
@@ -53,7 +53,11 @@ export const useAttentionStore = defineStore('attention', {
   getters: {
     canIncrement: () => (card) => {
       const today = getTodayKey();
-      return card.lastClickDate !== today;
+      return card.lastClickDate !== today && (card.stamps || 0) < card.goal;
+    },
+
+    isReadyToClaim: () => (card) => {
+      return (card?.stamps || 0) >= card.goal;
     },
 
     getCardById: (state) => (id) => {
@@ -205,24 +209,37 @@ export const useAttentionStore = defineStore('attention', {
 
       const today = getTodayKey();
 
-      if (card.lastClickDate === today) return;
+      if (card.lastClickDate === today || (card.stamps || 0) >= card.goal) return;
 
       const userId = getToken();
       const newStamps = (card.stamps || 0) + 1;
-      const isComplete = newStamps >= card.goal;
 
-      const updateData = isComplete
-        ? { count: (card.count || 0) + 1, stamps: 0, lastClickDate: today }
-        : { stamps: newStamps, lastClickDate: today };
+      await attentionService.updateCard(userId, cardId, {
+        stamps: newStamps,
+        lastClickDate: today,
+      });
 
-      await attentionService.updateCard(userId, cardId, updateData);
+      card.stamps = newStamps;
+      card.lastClickDate = today;
+    },
 
-      if (isComplete) {
-        card.count = (card.count || 0) + 1;
-        card.stamps = 0;
-      } else {
-        card.stamps = newStamps;
-      }
+    async claimReward(cardId) {
+      const card = this.cards.find((c) => c.id === cardId);
+
+      if (!card || (card.stamps || 0) < card.goal) return;
+
+      const userId = getToken();
+      const today = getTodayKey();
+      const newCount = (card.count || 0) + 1;
+
+      await attentionService.updateCard(userId, cardId, {
+        count: newCount,
+        stamps: 0,
+        lastClickDate: today,
+      });
+
+      card.count = newCount;
+      card.stamps = 0;
       card.lastClickDate = today;
     },
 
@@ -377,26 +394,29 @@ export const useAttentionStore = defineStore('attention', {
       for (const card of this.activeCards) {
         if (card.lastClickDate !== today) continue;
 
-        const isCompletionUndo = card.stamps === 0;
-        const updateData = isCompletionUndo
-          ? {
-              count: Math.max(0, (card.count || 0) - 1),
-              stamps: card.goal - 1,
-              lastClickDate: null,
-            }
-          : {
-              stamps: Math.max(0, (card.stamps || 0) - 1),
-              lastClickDate: null,
-            };
+        const currentStamps = card.stamps || 0;
+        let updateData;
+
+        if (currentStamps >= card.goal) {
+          updateData = { stamps: card.goal - 1, lastClickDate: null };
+          card.stamps = card.goal - 1;
+        } else if (currentStamps === 0) {
+          updateData = {
+            count: Math.max(0, (card.count || 0) - 1),
+            stamps: card.goal,
+            lastClickDate: null,
+          };
+          card.count = Math.max(0, (card.count || 0) - 1);
+          card.stamps = card.goal;
+        } else {
+          updateData = {
+            stamps: currentStamps - 1,
+            lastClickDate: null,
+          };
+          card.stamps = currentStamps - 1;
+        }
 
         await attentionService.updateCard(userId, card.id, updateData);
-
-        if (isCompletionUndo) {
-          card.count = Math.max(0, (card.count || 0) - 1);
-          card.stamps = card.goal - 1;
-        } else {
-          card.stamps = Math.max(0, (card.stamps || 0) - 1);
-        }
         card.lastClickDate = null;
       }
     },

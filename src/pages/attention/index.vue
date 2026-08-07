@@ -35,8 +35,16 @@ const handleAddCard = async (title) => {
   await attentionStore.addCard(title);
 };
 
+const handleUpdateSettings = async (cardId, settings) => {
+  await attentionStore.updateCardSettings(cardId, settings);
+};
+
 const handleIncrement = async (cardId) => {
   await attentionStore.incrementCard(cardId);
+};
+
+const handleClaimReward = async (cardId) => {
+  await attentionStore.claimReward(cardId);
 };
 
 const handleDelete = async (cardId) => {
@@ -80,7 +88,7 @@ const handleSelectMonth = async (month) => {
         <header class="attention-page__header">
           <h1 class="attention-page__title">Распределение внимания</h1>
           <p class="attention-page__subtitle">
-            Добавляйте +1 к карточкам каждый день, чтобы отслеживать куда уходит ваше внимание
+            Отмечайте внимание каждый день — соберите все штампы и заберите награду
           </p>
         </header>
 
@@ -105,12 +113,16 @@ const handleSelectMonth = async (month) => {
             :card="card"
             :can-increment="attentionStore.canIncrement(card)"
             :can-toggle-priority-focus="attentionStore.canTogglePriorityFocus(card)"
+            :can-edit-goal="attentionStore.canEditGoal(card)"
+            :is-ready-to-claim="attentionStore.isReadyToClaim(card)"
             :is-archived-view="isArchiveOpen"
             @increment="handleIncrement"
+            @claim-reward="handleClaimReward"
             @delete="handleDelete"
             @archive="handleArchive"
             @restore="handleRestore"
             @toggle-priority="handleTogglePriority"
+            @update-settings="handleUpdateSettings"
           />
         </div>
 

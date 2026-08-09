@@ -43,8 +43,13 @@ const currencies = reactive({
 });
 
 const monthlyStatsRef = ref(null);
+const converterRef = ref(null);
 const currencyList = computed(() => Object.values(currencies));
 const isAnyLoading = computed(() => currencyList.value.some((item) => item.isLoading));
+
+const applyStatsRate = (rate) => {
+  converterRef.value?.applyEcurrencyPrice(rate);
+};
 
 const fetchCurrency = async (id) => {
   const item = currencies[id];
@@ -88,11 +93,15 @@ onMounted(() => {
   <div class="page__container">
     <the-sidebar class="page__sidebar">
       <currencies-converter
+        ref="converterRef"
         :usd-rate="currencies.usd.rate"
         :ecurrency-rate="currencies.ecurrency.rate"
       />
 
-      <currencies-monthly-stats ref="monthlyStatsRef" />
+      <currencies-monthly-stats
+        ref="monthlyStatsRef"
+        @select-rate="applyStatsRate"
+      />
 
       <the-navigation />
     </the-sidebar>

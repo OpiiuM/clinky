@@ -53,4 +53,13 @@ export default defineConfig({
     },
     devSourcemap: true,
   },
+  server: {
+    proxy: {
+      '/api/blackbit': {
+        target: 'https://blackbit.exchange',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/blackbit/, ''),
+      },
+    },
+  },
 });

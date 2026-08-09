@@ -1,10 +1,20 @@
 <script setup>
+import { onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore, useFilterStore } from '@/stores';
+import { getToken, permissionsService } from '@/shared/api';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const filterStore = useFilterStore();
+const canAccessCurrencies = ref(false);
+
+onMounted(async () => {
+  const uid = getToken();
+  canAccessCurrencies.value = uid
+    ? await permissionsService.hasCurrenciesAccess(uid)
+    : false;
+});
 
 const handleLogout = async () => {
   const response = await authStore.logout();
@@ -33,6 +43,21 @@ const handleLogout = async () => {
       <span class="navigation__icon">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </span>
+    </router-link>
+
+    <router-link
+      v-if="canAccessCurrencies"
+      to="/currencies"
+      class="navigation__link navigation__link--currencies"
+      title="Валюты"
+    >
+      <span class="navigation__icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
+          <path d="M12 18V6"/>
         </svg>
       </span>
     </router-link>
@@ -151,6 +176,20 @@ const handleLogout = async () => {
       &:hover:not(.router-link-exact-active) {
         &::before {
           background: linear-gradient(135deg, rgba($mustard, 0.15) 0%, rgba($orange, 0.05) 100%);
+        }
+      }
+    }
+
+    // Модификатор для "Валюты"
+    &--currencies {
+      &.router-link-exact-active {
+        background: linear-gradient(135deg, $green 0%, darken($green, 12%) 100%);
+        box-shadow: 0 rem(4px) rem(16px) rgba($green, 0.3);
+      }
+
+      &:hover:not(.router-link-exact-active) {
+        &::before {
+          background: linear-gradient(135deg, rgba($green, 0.15) 0%, rgba($green, 0.05) 100%);
         }
       }
     }

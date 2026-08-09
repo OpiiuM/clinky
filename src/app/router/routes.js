@@ -1,4 +1,5 @@
 import { isLoggedIn } from '@/middlewares/isLoggedIn';
+import { hasCurrenciesAccess } from '@/middlewares/hasCurrenciesAccess';
 
 export default [
   {
@@ -36,6 +37,15 @@ export default [
     meta: {
       layout: 'Main',
       middlewares: [isLoggedIn],
+    },
+  },
+  {
+    path: '/currencies',
+    name: 'CurrenciesView',
+    component: () => import('@/pages/currencies/index.vue'),
+    meta: {
+      layout: 'Main',
+      middlewares: [isLoggedIn, hasCurrenciesAccess],
     },
   },
   {

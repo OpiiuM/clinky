@@ -88,6 +88,18 @@ const syncFromRub = () => {
 };
 
 const syncCompare = (fromSide = 'ecurrency') => {
+  if (fromSide === 'price') {
+    const price = parseAmount(usdAmount.value);
+
+    if (price == null || props.usdRate == null) {
+      return;
+    }
+
+    ecurrencyAmount.value = '1';
+    rubAmount.value = formatInputAmount(price * props.usdRate);
+    return;
+  }
+
   if (!canCompare.value) {
     clearAmounts(fromSide);
     return;
@@ -131,9 +143,29 @@ const resetConverter = () => {
   syncCompare('ecurrency');
 };
 
+const applyEcurrencyPrice = (price) => {
+  if (typeof price !== 'number' || !Number.isFinite(price)) {
+    return;
+  }
+
+  lastEdited.value = 'price';
+  ecurrencyAmount.value = '1';
+  usdAmount.value = formatInputAmount(price);
+  rubAmount.value = props.usdRate != null
+    ? formatInputAmount(price * props.usdRate)
+    : '';
+};
+
+defineExpose({ applyEcurrencyPrice });
+
 watch(
   () => [props.usdRate, props.ecurrencyRate],
   ([usdRate, ecurrencyRate]) => {
+    if (lastEdited.value === 'price') {
+      syncCompare('price');
+      return;
+    }
+
     if (usdRate == null || ecurrencyRate == null) {
       clearAmounts(lastEdited.value);
       return;

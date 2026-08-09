@@ -81,6 +81,16 @@ onMounted(async () => {
 });
 
 defineExpose({ recordRate });
+
+const emit = defineEmits(['select-rate']);
+
+const selectRate = (rate) => {
+  if (typeof rate !== 'number') {
+    return;
+  }
+
+  emit('select-rate', rate);
+};
 </script>
 
 <template>
@@ -117,17 +127,27 @@ defineExpose({ recordRate });
     <template v-if="hasMonthlyStats">
       <div class="currencies-stats__row">
         <span class="currencies-stats__label">Max</span>
-        <strong class="currencies-stats__value currencies-stats__value--max">
+        <button
+          type="button"
+          class="currencies-stats__value currencies-stats__value--max"
+          :title="`Подставить ${formatRate(monthlyStats.max)} USDT`"
+          @click="selectRate(monthlyStats.max)"
+        >
           {{ formatRate(monthlyStats.max) }}
           <span class="currencies-stats__unit">USDT</span>
-        </strong>
+        </button>
       </div>
       <div class="currencies-stats__row">
         <span class="currencies-stats__label">Min</span>
-        <strong class="currencies-stats__value currencies-stats__value--min">
+        <button
+          type="button"
+          class="currencies-stats__value currencies-stats__value--min"
+          :title="`Подставить ${formatRate(monthlyStats.min)} USDT`"
+          @click="selectRate(monthlyStats.min)"
+        >
           {{ formatRate(monthlyStats.min) }}
           <span class="currencies-stats__unit">USDT</span>
-        </strong>
+        </button>
       </div>
     </template>
 
@@ -249,9 +269,14 @@ defineExpose({ recordRate });
   }
 
   &__value {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font: inherit;
     font-size: rem(16px);
     font-weight: $font-weight-bold;
-    color: $white;
+    cursor: pointer;
 
     &--max {
       color: #7dcea0;

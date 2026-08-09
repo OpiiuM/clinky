@@ -10,17 +10,17 @@
 .sidebar {
   position: fixed;
   z-index: $z-index-popup;
+  top: 0;
   right: 0;
   left: 0;
-  bottom: 0;
   
   height: 75dvh;
   padding: rem($gap-small);
 
   transition: all .75s $transition-function;
-  transform: translateY(100%);
+  transform: translateY(-100%);
 
-  border-radius: 16px 16px 0 0;
+  border-radius: 0 0 16px 16px;
   background-color: #242424;
 
   @media #{$screen-laptop} {
@@ -41,7 +41,7 @@
 
   &--open & {
     &__icon {
-      transform: rotate(0);
+      transform: rotate(180deg);
     }
   }
 
@@ -50,7 +50,7 @@
 
     position: absolute;
     z-index: -1;
-    top: calc(-#{$size} / 1.2);
+    bottom: calc(-#{$size} / 1.2);
     left: 50%;
 
     max-width: rem($size);
@@ -66,7 +66,7 @@
     max-width: none;
     max-height: none;
 
-    transform: rotate(180deg);
+    transform: rotate(0);
 
     color: $white;
   }

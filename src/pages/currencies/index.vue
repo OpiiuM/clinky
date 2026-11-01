@@ -12,6 +12,7 @@ import { currenciesService } from '@/shared/api';
 
 const fetchers = {
   usd: () => currenciesService.fetchUsd(),
+  eur: () => currenciesService.fetchEur(),
   ecurrency: () => currenciesService.fetchEcurrency(),
 };
 
@@ -19,6 +20,18 @@ const currencies = reactive({
   usd: {
     id: 'usd',
     label: 'Доллар',
+    unit: 'RUB',
+    rate: null,
+    previous: null,
+    change: null,
+    changePercent: null,
+    fetchedAt: null,
+    error: null,
+    isLoading: false,
+  },
+  eur: {
+    id: 'eur',
+    label: 'Евро',
     unit: 'RUB',
     rate: null,
     previous: null,
@@ -112,7 +125,8 @@ onMounted(() => {
           <div class="currencies-page__heading">
             <h1 class="currencies-page__title">Валюты</h1>
             <p class="currencies-page__subtitle">
-              Курсы запрашиваются вручную. Доступны доллар (ЦБ) и ecurrency.
+              Курсы запрашиваются вручную. Доступны доллар и евро (ЦБ), а также
+              ecurrency.
             </p>
           </div>
 

@@ -6,6 +6,27 @@ const ECURRENCY_URL =
 
 const CBR_URL = 'https://www.cbr-xml-daily.ru/daily_json.js';
 
+// Дедупликация только для параллельных запросов: устаревший курс не кэшируется
+let cbrRequest = null;
+
+const loadCbr = () => {
+  if (!cbrRequest) {
+    cbrRequest = fetch(CBR_URL)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Не удалось получить курсы ЦБ (${response.status})`);
+        }
+
+        return response.json();
+      })
+      .finally(() => {
+        cbrRequest = null;
+      });
+  }
+
+  return cbrRequest;
+};
+
 class CurrenciesService extends FirebaseClient {
   getMonthKey(date = new Date()) {
     const year = date.getFullYear();
@@ -99,32 +120,48 @@ class CurrenciesService extends FirebaseClient {
     };
   }
 
-  async fetchUsd() {
-    const response = await fetch(CBR_URL);
+  async fetchCbrValute(code) {
+    const data = await loadCbr();
+    const valute = data?.Valute?.[code];
 
-    if (!response.ok) {
-      throw new Error(`Не удалось получить курс доллара (${response.status})`);
-    }
-
-    const data = await response.json();
-    const usd = data?.Valute?.USD;
-
-    if (typeof usd?.Value !== 'number' || typeof usd?.Previous !== 'number') {
+    if (typeof valute?.Value !== 'number' || typeof valute?.Previous !== 'number') {
       throw new Error('Некорректный ответ ЦБ');
     }
 
-    const change = usd.Value - usd.Previous;
-    const changePercent = (change / usd.Previous) * 100;
+    const nominal = valute.Nominal || 1;
+    const rate = valute.Value / nominal;
+    const previous = valute.Previous / nominal;
+    const change = rate - previous;
+    const changePercent = previous === 0 ? 0 : (change / previous) * 100;
+
+    return {
+      rate,
+      previous,
+      change,
+      changePercent,
+      fetchedAt: new Date(),
+    };
+  }
+
+  async fetchUsd() {
+    const data = await this.fetchCbrValute('USD');
 
     return {
       id: 'usd',
       label: 'Доллар',
       unit: 'RUB',
-      rate: usd.Value,
-      previous: usd.Previous,
-      change,
-      changePercent,
-      fetchedAt: new Date(),
+      ...data,
+    };
+  }
+
+  async fetchEur() {
+    const data = await this.fetchCbrValute('EUR');
+
+    return {
+      id: 'eur',
+      label: 'Евро',
+      unit: 'RUB',
+      ...data,
     };
   }
 }
